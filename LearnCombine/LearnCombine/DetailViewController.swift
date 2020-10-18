@@ -19,20 +19,36 @@ let commonError = NSError(domain: "", code: 0, userInfo: nil)
 
 var number = 0
 class DetailViewPresenter {
-    var bag = Set<AnyCancellable>()
-    
-    var defferedPubliser = Deferred {
-        return Just(number)
-    }.eraseToAnyPublisher()
-    
-    var justPubliser = Just(number)
-    
     func tappedButton() {
-        number = 2
-        justPubliser.sink { (value) in
-            print("SINK = \(number)")
-        }.store(in: &bag)
+        let aSquare = squareInFuture(5)
+        let bSquare = squareInFuture(7)
+        let add = addInFuture(a: aSquare, b: bSquare)
+        
+        add.sinkAndDispose { (completion) in
+            switch completion {
+            case .finished: print("finished")
+            case .failure(let error): print("failure \(error)")
+            }
+        } receiveValue: { (value) in
+            print("result in Future: \(value)")
+        }
     }
     
-   
+    func squareInFuture(_ a: Int) -> Future<Int, Error> {
+        .init { promise in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                print("squareInFuture promise(.success(\(a * a)))")
+                promise(.success(a * a))
+            }
+        }
+    }
+    
+    func addInFuture(a: Future<Int, Error>, b: Future<Int, Error>) -> Future<Int, Error> {
+        .init { promise in
+            a.zip(b).sinkAndDispose { (a, b) in
+                print("addInFuture promise(.success(\(a + b)))")
+                promise(.success(a + b))
+            }
+        }
+    }
 }

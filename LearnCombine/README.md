@@ -156,7 +156,7 @@ $text.sink: #0
 
 ### Future - TƯƠNG LAI
 
-Là 1 Publisher chỉ fire 1 `value` duy nhất hoặc fire `failure(error)`. 
+Là 1 Publisher chỉ fire 1 `value` duy nhất hoặc fire `failure(error)`. Promise là method fire 
 
 Tạo 1 future
 
