@@ -46,11 +46,15 @@ extension Publisher {
     }
     
     public func sinkAndDispose(receiveValue: @escaping ((Self.Output) -> Void)) {
-        sinkAndDispose { _ in
-            // Do no thing
-        } receiveValue: { value in
+        var cancellable: AnyCancellable?
+        var removedFromBag = false
+        cancellable = sink { (completion) in
+            removedFromBag = remove(cancellable)
+        } receiveValue: { (value) in
+            removedFromBag = remove(cancellable)
             receiveValue(value)
         }
+        add(cancellable, ifNeeded: !removedFromBag)
     }
 
 }

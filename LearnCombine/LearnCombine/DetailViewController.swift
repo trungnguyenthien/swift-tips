@@ -37,6 +37,9 @@ class DetailViewPresenter {
     func squareInFuture(_ a: Int) -> Future<Int, Error> {
         .init { promise in
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                if a % 5 == 0 {
+                    promise(.failure(commonError))
+                }
                 print("squareInFuture promise(.success(\(a * a)))")
                 promise(.success(a * a))
             }
